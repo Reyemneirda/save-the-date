@@ -968,6 +968,54 @@
      * ========================================================== */
     setLang(detectLang());
     setInterval(updateCountdown, 1000);
+
+    /**
+     * Pré-remplissage du formulaire via le paramètre URL ?p=TELEPHONE
+     *
+     * Quand un invité ouvre le lien (ex: ...?p=33640158915),
+     * la page appelle le Apps Script en GET pour retrouver
+     * l'invité par son numéro de téléphone dans le Sheet.
+     * Si trouvé → pré-remplit prénom, nom, email.
+     * Les champs accompagnants, parking et message restent vides.
+     *
+     * Les champs pré-remplis sont visuellement grisés et en
+     * lecture seule pour éviter les erreurs de saisie.
+     */
+    (async function prefillFromPhone() {
+        const params = new URLSearchParams(window.location.search);
+        const phone  = params.get('p');
+
+        if (!phone || !APPS_SCRIPT_URL) return;
+
+        try {
+            const url  = APPS_SCRIPT_URL + '?p=' + encodeURIComponent(phone);
+            const resp = await fetch(url);
+            const data = await resp.json();
+
+            if (data.found) {
+                const fnField = document.getElementById('field-firstName');
+                const lnField = document.getElementById('field-lastName');
+                const emField = document.getElementById('field-email');
+
+                // Pré-remplit les champs
+                fnField.value = data.firstName || '';
+                lnField.value = data.lastName  || '';
+                emField.value = data.email     || '';
+
+                // Rend les champs nom/prénom en lecture seule
+                // (on ne veut pas que l'invité modifie son nom,
+                //  sinon le script ne retrouvera plus sa ligne)
+                fnField.readOnly = true;
+                lnField.readOnly = true;
+                fnField.style.opacity = '0.7';
+                lnField.style.opacity = '0.7';
+            }
+        } catch (err) {
+            // Si la recherche échoue, le formulaire reste vide
+            // et l'invité peut remplir manuellement
+            console.warn('Prefill échoué:', err);
+        }
+    })();
     </script>
 
 </body>
