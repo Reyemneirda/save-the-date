@@ -312,12 +312,60 @@
             animation: fadeUp 1s ease-out 0.8s both;
         }
 
+        .venue-map {
+            margin-top: 1rem;
+            animation: fadeUp 1s ease-out 0.85s both;
+            width: 100%;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .venue-map iframe {
+            width: 100%;
+            height: 250px;
+            border: 1px solid var(--color-border, #d5c9b8);
+            border-radius: 10px;
+        }
+
+        .waze-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+            padding: 0.55rem 1.4rem;
+            font-family: var(--font-body);
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #fff;
+            background: #33ccff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease, transform 0.2s ease;
+            animation: fadeUp 1s ease-out 0.9s both;
+        }
+
+        .waze-btn:hover {
+            background: #28b8e8;
+            transform: translateY(-1px);
+        }
+
+        .waze-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
         .countdown {
             display: flex;
             justify-content: center;
             gap: 1.5rem;
             margin-top: 2rem;
-            animation: fadeUp 1s ease-out 0.9s both;
+            animation: fadeUp 1s ease-out 1.1s both;
         }
 
         .countdown-item { text-align: center; }
@@ -351,7 +399,7 @@
             max-width: 400px;
             margin-left: auto;
             margin-right: auto;
-            animation: fadeUp 1s ease-out 1s both;
+            animation: fadeUp 1s ease-out 1.2s both;
         }
 
         .scroll-arrow {
@@ -368,7 +416,7 @@
             border: 1px solid var(--color-accent);
             cursor: pointer;
             transition: all 0.4s ease;
-            animation: fadeUp 1s ease-out 1.1s both;
+            animation: fadeUp 1s ease-out 1.3s both;
             background: none;
         }
 
@@ -603,6 +651,21 @@
         <div class="divider"><span class="divider-icon">✦</span></div>
         <p class="date"  data-i18n="date"></p>
         <p class="venue" data-i18n="venue"></p>
+
+        <div class="venue-map">
+            <iframe
+                src="https://www.openstreetmap.org/export/embed.html?bbox=34.7485%2C32.0505%2C34.7545%2C32.0555&amp;layer=mapnik&amp;marker=32.0530%2C34.7515"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                title="Beit Andromeda, Tel Aviv">
+            </iframe>
+        </div>
+
+        <a class="waze-btn" href="https://waze.com/ul?ll=32.0530,34.7515&navigate=yes&zoom=17" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.54 6.63c-1.22-3.41-4.6-5.63-8.54-5.63-4.94 0-9 3.56-9 8 0 .59.07 1.17.18 1.73C1.34 11.58 0 13.62 0 16c0 2.08.8 3.97 2.12 5.41.34.37.83.59 1.38.59.28 0 .56-.07.8-.19C5.4 22.56 6.68 23 8 23c1.54 0 2.95-.58 4-1.54C13.05 22.42 14.46 23 16 23c1.32 0 2.6-.44 3.7-1.19.24.12.52.19.8.19.55 0 1.04-.22 1.38-.59C23.2 19.97 24 18.08 24 16c0-2.38-1.34-4.42-3.18-5.27.11-.56.18-1.14.18-1.73 0-.79-.12-1.55-.34-2.27l-.12-.1zM8.5 9C9.33 9 10 9.67 10 10.5S9.33 12 8.5 12 7 11.33 7 10.5 7.67 9 8.5 9zm7 0c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zM12 17c-2.21 0-4-1.34-4-3h8c0 1.66-1.79 3-4 3z"/></svg>
+            <span data-i18n="waze_btn"></span>
+        </a>
+
         <div class="countdown" id="countdown"></div>
         <p class="message" data-i18n="message"></p>
 
@@ -713,6 +776,7 @@
             eyebrow: 'Nous avons le plaisir de vous annoncer',
             date:    '5 Octobre 2026',
             venue:   'Beit Andromeda, Tel Aviv',
+            waze_btn: 'Y aller avec Waze',
             message: 'Plus de détails suivront bientôt.\nNous espérons vous compter parmi nous.',
             rsvp_btn: 'Confirmez votre présence',
 
@@ -742,6 +806,7 @@
             eyebrow: 'We are delighted to announce',
             date:    'October 5, 2026',
             venue:   'Beit Andromeda, Tel Aviv',
+            waze_btn: 'Navigate with Waze',
             message: 'More details to follow.\nWe hope to celebrate with you.',
             rsvp_btn: 'RSVP',
 
@@ -769,6 +834,7 @@
             eyebrow: 'אנו שמחים להודיע',
             date:    '5 באוקטובר 2026',
             venue:   'בית אנדרומדה, תל אביב',
+            waze_btn: 'נווט עם Waze',
             message: 'פרטים נוספים בקרוב.\nנשמח לחגוג איתכם.',
             rsvp_btn: 'אישור הגעה',
 
@@ -796,6 +862,7 @@
             eyebrow: 'Мы рады сообщить вам',
             date:    '5 октября 2026',
             venue:   'Бейт Андромеда, Тель-Авив',
+            waze_btn: 'Навигация через Waze',
             message: 'Подробности скоро.\nБудем рады видеть вас.',
             rsvp_btn: 'Подтвердить участие',
 
