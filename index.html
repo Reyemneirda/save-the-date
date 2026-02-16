@@ -22,14 +22,14 @@
     ║                                                                      ║
     ║  Ton Sheet1 a ces colonnes :                                        ║
     ║  A: First Name | B: Last Name | C: Guests | D: Phone Number        ║
-    ║  E: Need Parking slot ? | F: Total | G: Statut RSVP                ║
-    ║  H: Email | I: Restrictions alimentaires | J: Message              ║
-    ║  K: Date de réponse                                                 ║
+    ║  E: Telegram username | F: Need Parking slot ? | G: Total          ║
+    ║  H: Statut RSVP | I: Email | J: Restrictions alimentaires         ║
+    ║  K: Message | L: Date de réponse                                    ║
     ║                                                                      ║
     ║  Le script Apps Script ci-dessous cherche l'invité par              ║
     ║  Prénom + Nom dans Sheet1, puis remplit les colonnes :              ║
-    ║  C (Guests), E (Parking), G (Statut), H (Email),                   ║
-    ║  I ("Casher"), J (Message), K (Date de réponse)                    ║
+    ║  C (Guests), F (Parking), H (Statut), I (Email),                   ║
+    ║  J ("Casher"), K (Message), L (Date de réponse)                    ║
     ║                                                                      ║
     ║  ÉTAPE 1 — Dans ton Google Sheet :                                  ║
     ║    Extensions > Apps Script                                          ║
@@ -57,12 +57,12 @@
     ║  │      if (firstName === dataFirst && lastName === dataLast) {  │   ║
     ║  │        var row = i + 1; // +1 car index commence à 0         │   ║
     ║  │        sheet.getRange(row, 3).setValue(data.guests);  // C    │   ║
-    ║  │        sheet.getRange(row, 5).setValue(data.parking);  // E   │   ║
-    ║  │        sheet.getRange(row, 7).setValue("Confirmed");   // G   │   ║
-    ║  │        sheet.getRange(row, 8).setValue(data.email);    // H   │   ║
-    ║  │        sheet.getRange(row, 9).setValue("Casher");      // I   │   ║
-    ║  │        sheet.getRange(row, 10).setValue(data.message);  // J  │   ║
-    ║  │        sheet.getRange(row, 11).setValue(new Date());    // K  │   ║
+    ║  │        sheet.getRange(row, 6).setValue(data.parking);  // F   │   ║
+    ║  │        sheet.getRange(row, 8).setValue("Confirmed");   // H   │   ║
+    ║  │        sheet.getRange(row, 9).setValue(data.email);    // I   │   ║
+    ║  │        sheet.getRange(row, 10).setValue("Casher");     // J   │   ║
+    ║  │        sheet.getRange(row, 11).setValue(data.message); // K   │   ║
+    ║  │        sheet.getRange(row, 12).setValue(new Date());   // L   │   ║
     ║  │        found = true;                                          │   ║
     ║  │        break;                                                 │   ║
     ║  │      }                                                        │   ║
@@ -72,7 +72,7 @@
     ║  │    if (!found) {                                              │   ║
     ║  │      sheet.appendRow([                                        │   ║
     ║  │        data.firstName, data.lastName, data.guests, "",        │   ║
-    ║  │        data.parking, "", "Confirmed", data.email,             │   ║
+    ║  │        "", data.parking, "", "Confirmed", data.email,         │   ║
     ║  │        "Casher", data.message, new Date()                     │   ║
     ║  │      ]);                                                      │   ║
     ║  │    }                                                          │   ║
@@ -1223,13 +1223,14 @@
          * Le script cherche firstName + lastName dans Sheet1 (col A+B),
          * puis remplit :
          *   C: guests (accompagnants)
-         *   E: parking (true/false)
-         *   G: "Confirmed"
-         *   H: email
-         *   I: "Casher"
-         *   J: message
-         *   K: Date de réponse (auto)
+         *   F: parking (true/false)
+         *   H: "Confirmed"
+         *   I: email
+         *   J: "Casher"
+         *   K: message
+         *   L: Date de réponse (auto)
          *
+         * Colonnes D (Phone) et E (Telegram) ne sont pas modifiées.
          * Si l'invité n'est pas trouvé, une nouvelle ligne est ajoutée.
          */
         const payload = {
@@ -1273,25 +1274,30 @@
       setInterval(updateCountdown, 1000);
 
       /**
-       * Pré-remplissage du formulaire via le paramètre URL ?p=TELEPHONE
+       * Pré-remplissage du formulaire via l'URL.
        *
-       * Quand un invité ouvre le lien (ex: ...?p=33640158915),
-       * la page appelle le Apps Script en GET pour retrouver
-       * l'invité par son numéro de téléphone dans le Sheet.
+       * Deux paramètres supportés :
+       *   ?p=33640158915   → recherche par téléphone (col D)
+       *   ?t=john_doe      → recherche par Telegram username (col E)
+       *
        * Si trouvé → pré-remplit prénom, nom, email.
-       * Les champs accompagnants, parking et message restent vides.
-       *
-       * Les champs pré-remplis sont visuellement grisés et en
-       * lecture seule pour éviter les erreurs de saisie.
+       * Les champs nom/prénom passent en lecture seule.
        */
-      (async function prefillFromPhone() {
+      (async function prefillFromURL() {
         const params = new URLSearchParams(window.location.search);
         const phone = params.get("p");
+        const tgUser = params.get("t");
 
-        if (!phone || !APPS_SCRIPT_URL) return;
+        if ((!phone && !tgUser) || !APPS_SCRIPT_URL) return;
 
         try {
-          const url = APPS_SCRIPT_URL + "?p=" + encodeURIComponent(phone);
+          let url = APPS_SCRIPT_URL;
+          if (phone) {
+            url += "?p=" + encodeURIComponent(phone);
+          } else if (tgUser) {
+            url += "?t=" + encodeURIComponent(tgUser);
+          }
+
           const resp = await fetch(url);
           const data = await resp.json();
 
@@ -1300,22 +1306,16 @@
             const lnField = document.getElementById("field-lastName");
             const emField = document.getElementById("field-email");
 
-            // Pré-remplit les champs
             fnField.value = data.firstName || "";
             lnField.value = data.lastName || "";
             emField.value = data.email || "";
 
-            // Rend les champs nom/prénom en lecture seule
-            // (on ne veut pas que l'invité modifie son nom,
-            //  sinon le script ne retrouvera plus sa ligne)
             fnField.readOnly = true;
             lnField.readOnly = true;
             fnField.style.opacity = "0.7";
             lnField.style.opacity = "0.7";
           }
         } catch (err) {
-          // Si la recherche échoue, le formulaire reste vide
-          // et l'invité peut remplir manuellement
           console.warn("Prefill échoué:", err);
         }
       })();
