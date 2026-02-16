@@ -151,7 +151,9 @@
       body {
         font-family: var(--font-body);
         color: var(--color-text);
-        background-color: var(--color-bg);
+        background: url("grid-background-mobile-color.jpg") center / cover
+          no-repeat fixed;
+        background-color: #1a1510;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -166,22 +168,9 @@
         content: "";
         position: fixed;
         inset: 0;
-        background:
-          radial-gradient(
-            ellipse at 20% 50%,
-            rgba(184, 134, 11, 0.04) 0%,
-            transparent 60%
-          ),
-          radial-gradient(
-            ellipse at 80% 20%,
-            rgba(212, 169, 75, 0.05) 0%,
-            transparent 50%
-          ),
-          radial-gradient(
-            ellipse at 50% 90%,
-            rgba(140, 126, 110, 0.03) 0%,
-            transparent 50%
-          );
+        backdrop-filter: blur(1px);
+        -webkit-backdrop-filter: blur(1px);
+        background: rgba(0, 0, 0, 0.05);
         pointer-events: none;
         z-index: 0;
       }
@@ -205,8 +194,10 @@
       }
 
       .lang-btn {
-        background: var(--color-white);
-        border: 1px solid var(--color-line);
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
         padding: 0.35rem 0.6rem;
         font-family: var(--font-body);
         font-size: 0.65rem;
@@ -214,7 +205,7 @@
         color: var(--color-muted);
         cursor: pointer;
         transition: all 0.3s ease;
-        border-radius: 2px;
+        border-radius: 6px;
       }
 
       .lang-btn:hover {
@@ -240,6 +231,7 @@
         text-align: center;
         background: var(--color-white);
         border: 1px solid var(--color-line);
+        border-radius: 16px;
         box-shadow:
           0 1px 3px rgba(0, 0, 0, 0.03),
           0 20px 60px rgba(0, 0, 0, 0.04);
@@ -251,7 +243,8 @@
         position: absolute;
         inset: 12px;
         border: 1px solid var(--color-accent-soft);
-        opacity: 0.4;
+        border-radius: 10px;
+        opacity: 0.35;
         pointer-events: none;
       }
 
@@ -473,6 +466,7 @@
         transition: all 0.4s ease;
         animation: fadeUp 1s ease-out 1.3s both;
         background: none;
+        border-radius: 8px;
       }
 
       .scroll-arrow:hover {
@@ -530,9 +524,9 @@
         font-size: 0.85rem;
         font-weight: 300;
         color: var(--color-text);
-        background: var(--color-bg);
-        border: 1px solid var(--color-line);
-        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(212, 197, 176, 0.6);
+        border-radius: 8px;
         outline: none;
         transition: border-color 0.3s ease;
         -webkit-appearance: none;
@@ -599,7 +593,7 @@
         border: 1px solid var(--color-accent);
         cursor: pointer;
         transition: all 0.4s ease;
-        border-radius: 2px;
+        border-radius: 8px;
       }
 
       .form-submit:hover:not(:disabled) {
