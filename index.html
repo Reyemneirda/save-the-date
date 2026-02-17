@@ -151,10 +151,9 @@
       body {
         font-family: var(--font-body);
         color: var(--color-text);
-        background: url("grid-background-mobile-color.jpg") center / cover
-          no-repeat fixed;
         background-color: #1a1510;
         min-height: 100vh;
+        min-height: 100dvh;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -162,14 +161,19 @@
         padding: 2rem;
         overflow-x: hidden;
         gap: 100rem;
+        -webkit-overflow-scrolling: touch;
       }
 
       body::before {
         content: "";
         position: fixed;
         inset: 0;
+        background: url("grid-background-mobile-color.jpg") center / cover
+          no-repeat;
         pointer-events: none;
-        z-index: 0;
+        z-index: -1;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
       }
 
       /* ============================================= */
