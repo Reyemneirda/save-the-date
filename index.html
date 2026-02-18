@@ -22,9 +22,9 @@
     ║                                                                      ║
     ║  Ton Sheet1 a ces colonnes :                                        ║
     ║  A: First Name | B: Last Name | C: Guests | D: Phone Number        ║
-    ║  E: Telegram username | F: Need Parking slot ? | G: Total          ║
-    ║  H: Statut RSVP | I: Email | J: Restrictions alimentaires         ║
-    ║  K: Message | L: Date de réponse                                    ║
+    ║  E: Telegram username | F: Comes ? | G: Parking lot | H: Total    ║
+    ║  I: Statut RSVP | J: Email | K: Restrictions alimentaires         ║
+    ║  L: Message | M: Date de réponse | N: lang                         ║
     ║                                                                      ║
     ║  Le script Apps Script ci-dessous cherche l'invité par              ║
     ║  Prénom + Nom dans Sheet1, puis remplit les colonnes :              ║
@@ -298,7 +298,8 @@
       }
 
       @keyframes scrollBounce {
-        0%, 100% {
+        0%,
+        100% {
           transform: rotate(45deg) translateY(0);
           opacity: 1;
         }
@@ -641,6 +642,52 @@
         cursor: pointer;
       }
 
+      /* Toggle "Je viens / Je ne viens pas" */
+      .comes-toggle {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.3rem;
+      }
+
+      .comes-btn {
+        flex: 1;
+        padding: 0.65rem 1rem;
+        font-family: var(--font-body);
+        font-size: 0.8rem;
+        font-weight: 300;
+        border: 1px solid var(--color-line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.5);
+        color: var(--color-muted);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .comes-btn:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
+
+      .comes-btn.active {
+        border-color: var(--color-accent);
+        background: var(--color-accent);
+        color: var(--color-white);
+      }
+
+      #comes-details {
+        transition:
+          opacity 0.3s ease,
+          max-height 0.3s ease;
+        overflow: hidden;
+      }
+
+      #comes-details.hidden {
+        opacity: 0;
+        max-height: 0;
+        margin: 0;
+        pointer-events: none;
+      }
+
       .form-submit {
         display: inline-block;
         margin-top: 1.5rem;
@@ -966,7 +1013,12 @@
     </main>
 
     <!-- Indicateur de scroll entre les cartes -->
-    <div class="scroll-hint" onclick="document.getElementById('rsvp').scrollIntoView({ behavior: 'smooth' })">
+    <div
+      class="scroll-hint"
+      onclick="
+        document.getElementById('rsvp').scrollIntoView({ behavior: 'smooth' })
+      "
+    >
       <span class="scroll-hint-text" data-i18n="rsvp_btn"></span>
       <div class="scroll-hint-arrow"></div>
     </div>
@@ -1001,37 +1053,61 @@
           </div>
         </div>
 
-        <!-- Email + Nombre d'invités -->
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" data-i18n="label_email"></label>
-            <input class="form-input" type="email" id="field-email" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" data-i18n="label_guests"></label>
-            <input
-              class="form-input"
-              type="number"
-              id="field-guests"
-              min="0"
-              max="20"
-              value="0"
-              style="max-width: 100%"
-            />
+        <!-- Présence (Comes?) -->
+        <div class="form-group" style="margin-bottom: 2rem">
+          <label class="form-label" data-i18n="label_comes"></label>
+          <div class="comes-toggle" id="comes-toggle">
+            <button
+              type="button"
+              class="comes-btn comes-btn--yes active"
+              id="comes-yes"
+              onclick="setComes(true)"
+              data-i18n="comes_yes"
+            ></button>
+            <button
+              type="button"
+              class="comes-btn comes-btn--no"
+              id="comes-no"
+              onclick="setComes(false)"
+              data-i18n="comes_no"
+            ></button>
           </div>
         </div>
 
-        <!-- Parking -->
-        <div class="form-checkbox-group">
-          <input class="form-checkbox" type="checkbox" id="field-parking" />
-          <label
-            class="form-checkbox-label"
-            for="field-parking"
-            data-i18n="label_parking"
-          ></label>
+        <!-- Champs affichés seulement si "Je viens" -->
+        <div id="comes-details">
+          <!-- Email + Nombre d'invités -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" data-i18n="label_email"></label>
+              <input class="form-input" type="email" id="field-email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="label_guests"></label>
+              <input
+                class="form-input"
+                type="number"
+                id="field-guests"
+                min="0"
+                max="20"
+                value="0"
+                style="max-width: 100%"
+              />
+            </div>
+          </div>
+
+          <!-- Parking -->
+          <div class="form-checkbox-group">
+            <input class="form-checkbox" type="checkbox" id="field-parking" />
+            <label
+              class="form-checkbox-label"
+              for="field-parking"
+              data-i18n="label_parking"
+            ></label>
+          </div>
         </div>
 
-        <!-- Message -->
+        <!-- Message (toujours visible) -->
         <div class="form-group">
           <label class="form-label" data-i18n="label_message"></label>
           <textarea
@@ -1119,11 +1195,17 @@
           label_guests: "Accompagnants",
           label_parking: "J'ai besoin d'une place de parking",
           label_message: "Un petit mot (optionnel)",
+          label_comes: "Serez-vous présent(e) ?",
+          comes_yes: "Oui, je serai là !",
+          comes_no: "Malheureusement non",
           submit: "Envoyer",
           sending: "Envoi en cours…",
           success_title: "Merci !",
           success_sub:
             "Réponse enregistrée.\nNous avons hâte de vous voir à Tel Aviv en octobre !",
+          success_title_no: "Merci de votre réponse",
+          success_sub_no:
+            "Nous sommes désolés que vous ne puissiez pas venir.\nVous nous manquerez !",
           error: "Une erreur est survenue. Veuillez réessayer.",
           error_name: "Merci d'indiquer votre prénom et nom.",
 
@@ -1153,11 +1235,16 @@
           label_guests: "Additional guests",
           label_parking: "I need a parking spot",
           label_message: "Want to add a note? (optional)",
+          label_comes: "Will you be attending?",
+          comes_yes: "Yes, I'll be there!",
+          comes_no: "Unfortunately not",
           submit: "Submit",
           sending: "Sending…",
           success_title: "Thank you!",
           success_sub:
             "Your response has been recorded.\nWe look forward to seeing you!",
+          success_title_no: "Thank you for letting us know",
+          success_sub_no: "We're sorry you can't make it.\nYou'll be missed!",
           error: "Something went wrong. Please try again.",
           error_name: "Please enter your first and last name.",
 
@@ -1184,10 +1271,15 @@
           label_guests: "מלווים נוספים",
           label_parking: "אני צריך/ה חנייה",
           label_message: "הערה (לא חובה)",
+          label_comes: "?האם תגיעו",
+          comes_yes: "!כן, אגיע",
+          comes_no: "לצערי לא",
           submit: "שליחה",
           sending: "שולח…",
           success_title: "!תודה",
           success_sub: "תשובתכם נרשמה.\n!נשמח לראותכם",
+          success_title_no: "תודה על התשובה",
+          success_sub_no: "!חבל שלא תוכלו להגיע.\nנתגעגע אליכם",
           error: "אירעה שגיאה. אנא נסו שוב.",
           error_name: "אנא הזינו שם פרטי ושם משפחה.",
 
@@ -1215,11 +1307,16 @@
           label_guests: "Дополнительные гости",
           label_parking: "Мне нужна парковка",
           label_message: "Хотите что-то добавить? (необязательно)",
+          label_comes: "Вы придёте?",
+          comes_yes: "Да, буду!",
+          comes_no: "К сожалению, нет",
           submit: "Отправить",
           sending: "Отправка…",
           success_title: "Спасибо!",
           success_sub:
             "Спасибо! Мы получили ваш ответ.\nЖдём встречи с нетерпением!",
+          success_title_no: "Спасибо за ответ",
+          success_sub_no: "Жаль, что вы не сможете прийти.\nБудем скучать!",
           error: "Произошла ошибка. Попробуйте ещё раз.",
           error_name: "Пожалуйста, укажите имя и фамилию.",
 
@@ -1315,48 +1412,56 @@
           .join("");
       }
 
+      /* ---------- Toggle "Je viens / Je ne viens pas" ---------- */
+      let comesValue = true;
+
+      function setComes(val) {
+        comesValue = val;
+        document.getElementById("comes-yes").classList.toggle("active", val);
+        document.getElementById("comes-no").classList.toggle("active", !val);
+        document
+          .getElementById("comes-details")
+          .classList.toggle("hidden", !val);
+      }
+
       /* ---------- Envoi du formulaire RSVP ---------- */
       async function submitRSVP() {
         const t = TRANSLATIONS[currentLang];
         const btn = document.getElementById("submit-btn");
         const status = document.getElementById("form-status");
 
-        // Récupère les valeurs
         const firstName = document
           .getElementById("field-firstName")
           .value.trim();
         const lastName = document.getElementById("field-lastName").value.trim();
         const email = document.getElementById("field-email").value.trim();
-        const guests = document.getElementById("field-guests").value;
-        const parking = document.getElementById("field-parking").checked;
+        const guests = comesValue
+          ? document.getElementById("field-guests").value
+          : "0";
+        const parking = comesValue
+          ? document.getElementById("field-parking").checked
+          : false;
         const message = document.getElementById("field-message").value.trim();
+        const comes = comesValue;
 
-        // Validation : prénom + nom obligatoires
         if (!firstName || !lastName) {
           status.textContent = t.error_name;
           status.className = "form-status error";
           return;
         }
 
-        // État "envoi en cours"
         btn.disabled = true;
         status.textContent = t.sending;
         status.className = "form-status sending";
 
         /**
          * Payload envoyé au Apps Script.
-         * Le script cherche firstName + lastName dans Sheet1 (col A+B),
-         * puis remplit :
-         *   C: guests (accompagnants)
-         *   F: parking (true/false)
-         *   H: "Confirmed"
-         *   I: email
-         *   J: "Casher"
-         *   K: message
-         *   L: Date de réponse (auto)
          *
-         * Colonnes D (Phone) et E (Telegram) ne sont pas modifiées.
-         * Si l'invité n'est pas trouvé, une nouvelle ligne est ajoutée.
+         * Colonnes du Sheet :
+         *   A: First Name | B: Last Name | C: Guests | D: Phone
+         *   E: Telegram username | F: Comes? | G: Parking lot
+         *   H: Total | I: Statut RSVP | J: Email
+         *   K: Restrictions | L: Message | M: Date de réponse | N: lang
          */
         const payload = {
           firstName,
@@ -1365,6 +1470,7 @@
           guests,
           parking,
           message,
+          comes,
         };
 
         try {
@@ -1381,7 +1487,30 @@
             });
           }
 
-          // Succès
+          // Succès — affiche le bon message selon comes/pas comes
+          const t2 = TRANSLATIONS[currentLang];
+          const successTitle = document.querySelector(
+            "#success-message .success-text",
+          );
+          const successSub = document.querySelector(
+            "#success-message .success-sub",
+          );
+
+          if (comesValue) {
+            successTitle.innerHTML = t2.success_title;
+            successSub.innerHTML = (t2.success_sub || "").replace(
+              /\n/g,
+              "<br>",
+            );
+          } else {
+            successTitle.innerHTML = t2.success_title_no || t2.success_title;
+            successSub.innerHTML = (
+              t2.success_sub_no ||
+              t2.success_sub ||
+              ""
+            ).replace(/\n/g, "<br>");
+          }
+
           document.getElementById("rsvp-form-wrapper").style.display = "none";
           document.getElementById("success-message").classList.add("visible");
         } catch (err) {
