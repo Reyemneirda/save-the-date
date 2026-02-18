@@ -160,7 +160,7 @@
         justify-content: center;
         padding: 2rem;
         overflow-x: hidden;
-        gap: 100rem;
+        gap: 100vh;
         -webkit-overflow-scrolling: touch;
       }
 
@@ -253,8 +253,59 @@
         pointer-events: none;
       }
 
+      .card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        box-shadow: inset 0 0 40px 10px rgba(255, 255, 255, 0.25);
+        pointer-events: none;
+      }
+
       .card-rsvp {
         animation-delay: 0.2s;
+      }
+
+      /* Fleche de scroll animee */
+      .scroll-hint {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        margin: -3rem 0;
+        z-index: 2;
+        position: relative;
+      }
+
+      .scroll-hint-text {
+        font-family: var(--font-body);
+        font-size: 0.65rem;
+        font-weight: 400;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.85);
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+      }
+
+      .scroll-hint-arrow {
+        width: 24px;
+        height: 24px;
+        border-right: 2px solid rgba(255, 255, 255, 0.8);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+        transform: rotate(45deg);
+        animation: scrollBounce 2s ease-in-out infinite;
+        filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.4));
+      }
+
+      @keyframes scrollBounce {
+        0%, 100% {
+          transform: rotate(45deg) translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: rotate(45deg) translateY(8px);
+          opacity: 0.5;
+        }
       }
 
       @keyframes cardReveal {
@@ -695,7 +746,7 @@
       @media (max-width: 640px) {
         body {
           padding: 3rem 1.5rem;
-          gap: 10rem;
+          gap: 100vh;
         }
         .card {
           padding: 2.5rem 1.6rem;
@@ -914,6 +965,12 @@
       ></button>
     </main>
 
+    <!-- Indicateur de scroll entre les cartes -->
+    <div class="scroll-hint" onclick="document.getElementById('rsvp').scrollIntoView({ behavior: 'smooth' })">
+      <span class="scroll-hint-text" data-i18n="rsvp_btn"></span>
+      <div class="scroll-hint-arrow"></div>
+    </div>
+
     <!-- ============================================= -->
     <!--          CARTE 2 — FORMULAIRE RSVP             -->
     <!-- ============================================= -->
@@ -1066,7 +1123,7 @@
           sending: "Envoi en cours…",
           success_title: "Merci !",
           success_sub:
-            "Votre réponse a bien été enregistrée.\nNous avons hâte de vous voir !",
+            "Réponse enregistrée.\nNous avons hâte de vous voir à Tel Aviv en octobre !",
           error: "Une erreur est survenue. Veuillez réessayer.",
           error_name: "Merci d'indiquer votre prénom et nom.",
 
@@ -1084,7 +1141,8 @@
             "The Meyer and Fooks families are delighted to announce the marriage of",
           date: "October 5, 2026",
           venue: "Beit Andromeda, Tel Aviv",
-          message: "More details to follow.\nWe hope to celebrate with you.",
+          message:
+            "More details coming soon.\nWe can’t wait to see you all in Tel Aviv this October!",
           rsvp_btn: "RSVP",
 
           form_title: "RSVP",
@@ -1094,7 +1152,7 @@
           label_email: "Email",
           label_guests: "Additional guests",
           label_parking: "I need a parking spot",
-          label_message: "A note (optional)",
+          label_message: "Want to add a note? (optional)",
           submit: "Submit",
           sending: "Sending…",
           success_title: "Thank you!",
@@ -1125,7 +1183,7 @@
           label_email: "אימייל",
           label_guests: "מלווים נוספים",
           label_parking: "אני צריך/ה חנייה",
-          label_message: "הערה (אופציונלי)",
+          label_message: "הערה (לא חובה)",
           submit: "שליחה",
           sending: "שולח…",
           success_title: "!תודה",
@@ -1140,26 +1198,28 @@
         },
 
         ru: {
-          name1: "Адриен",
+          name1: "Адриан",
           name2: "Алина",
-          eyebrow: "Семьи Мейер и Фукс с радостью объявляют о бракосочетании",
+          eyebrow: "Семьи Мейер и Фукс рады сообщить о предстоящей свадьбе.",
           date: "5 октября 2026",
           venue: "Бейт Андромеда, Тель-Авив",
-          message: "Подробности скоро.\nБудем рады видеть вас.",
-          rsvp_btn: "Подтвердить участие",
+          message:
+            "Подробности — в ближайшее время.\nБудем рады видеть вас в Тель-Авиве в октябре!",
+          rsvp_btn: "Подтвердить присутствие",
 
           form_title: "Подтверждение",
           form_subtitle: "Пожалуйста, заполните форму",
           label_firstName: "Имя",
           label_lastName: "Фамилия",
-          label_email: "Эл. почта",
-          label_guests: "Доп. гости",
+          label_email: "Электронная почта",
+          label_guests: "Дополнительные гости",
           label_parking: "Мне нужна парковка",
-          label_message: "Пожелание (необязательно)",
+          label_message: "Хотите что-то добавить? (необязательно)",
           submit: "Отправить",
           sending: "Отправка…",
           success_title: "Спасибо!",
-          success_sub: "Ваш ответ записан.\nЖдём вас с нетерпением!",
+          success_sub:
+            "Спасибо! Мы получили ваш ответ.\nЖдём встречи с нетерпением!",
           error: "Произошла ошибка. Попробуйте ещё раз.",
           error_name: "Пожалуйста, укажите имя и фамилию.",
 
