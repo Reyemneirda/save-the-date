@@ -4,20 +4,20 @@
  * ============================================================
  *
  *  COLONNES DU SHEET :
- *  A: First Name         (index 0)
- *  B: Last Name          (index 1)
- *  C: Guests             (index 2)
- *  D: Phone Number       (index 3)
- *  E: Telegram username  (index 4)
- *  F: Comes ?            (index 5)
- *  G: Parking lot        (index 6)
- *  H: Total              (index 7)  ← formule, ne pas toucher
- *  I: Statut RSVP        (index 8)
- *  J: Email              (index 9)
- *  K: Restrictions       (index 10)
- *  L: Message            (index 11)
- *  M: Date de réponse    (index 12)
- *  N: lang               (index 13) ← pas utilisé ici
+ *  A(1):  First Name
+ *  B(2):  Last Name
+ *  C(3):  Guests
+ *  D(4):  Phone Number
+ *  E(5):  Telegram username
+ *  F(6):  Comes ?            ← checkbox (true/false)
+ *  G(7):  Parking lot        ← checkbox (true/false)
+ *  H(8):  Email
+ *  I(9):  Statut RSVP
+ *  J(10): Total              ← formule, ne pas toucher
+ *  K(11): Restrictions
+ *  L(12): Message
+ *  M(13): Date de réponse
+ *  N(14): lang
  *
  *  FONCTIONS :
  *  doGet  → Recherche par téléphone (?p=) ou Telegram (?t=)
@@ -86,7 +86,7 @@ function doGet(e) {
         found: true,
         firstName: rows[i][0],         // A
         lastName:  rows[i][1],         // B
-        email:     rows[i][9] || ""    // J
+        email:     rows[i][7] || ""    // H (Email)
       };
       break;
     }
@@ -105,9 +105,9 @@ function doGet(e) {
  * Trouvé → met à jour. Pas trouvé → nouvelle ligne.
  *
  * Le champ "comes" détermine :
- *   - F: "Yes" ou "No"
+ *   - F: true ou false (checkbox)
  *   - I: "Confirmed" ou "Declined"
- *   - Si "No" : guests = 0, parking = false
+ *   - Si false : guests = 0, parking = false
  */
 function doPost(e) {
   var sheet = SpreadsheetApp
@@ -131,16 +131,17 @@ function doPost(e) {
     if (firstName === dataFirst && lastName === dataLast) {
       var row = i + 1;
 
-      sheet.getRange(row, 3).setValue(comes ? Number(data.guests) : 0);  // C: Guests
+      sheet.getRange(row, 3).setValue(comes ? Number(data.guests) : 0);   // C: Guests
       // D (Phone) et E (Telegram) ne sont pas modifiés
-      sheet.getRange(row, 6).setValue(comes ? "Yes" : "No");              // F: Comes?
-      sheet.getRange(row, 7).setValue(comes ? data.parking : false);      // G: Parking
-      // H (Total) est une formule
-      sheet.getRange(row, 9).setValue(statut);                            // I: Statut RSVP
-      sheet.getRange(row, 10).setValue(data.email);                       // J: Email
-      sheet.getRange(row, 11).setValue("Casher");                         // K: Restrictions
-      sheet.getRange(row, 12).setValue(data.message);                     // L: Message
+      sheet.getRange(row, 6).setValue(comes);                              // F: Comes? (checkbox)
+      sheet.getRange(row, 7).setValue(comes ? !!data.parking : false);     // G: Parking (checkbox)
+      sheet.getRange(row, 8).setValue(data.email);                         // H: Email
+      sheet.getRange(row, 9).setValue(statut);                             // I: Statut RSVP
+      // J(10) = Total → formule, on ne touche pas
+      sheet.getRange(row, 11).setValue(data.restrictions || "");           // K: Restrictions
+      sheet.getRange(row, 12).setValue(data.message || "");               // L: Message
       sheet.getRange(row, 13).setValue(new Date());                       // M: Date de réponse
+      sheet.getRange(row, 14).setValue(data.lang || "");                  // N: lang
 
       found = true;
       break;
@@ -154,15 +155,15 @@ function doPost(e) {
       comes ? Number(data.guests) : 0,       // C
       "",                                    // D: Phone
       "",                                    // E: Telegram
-      comes ? "Yes" : "No",                  // F: Comes?
-      comes ? data.parking : false,           // G: Parking
-      "",                                    // H: Total (formule)
+      comes,                                 // F: Comes? (checkbox)
+      comes ? !!data.parking : false,        // G: Parking (checkbox)
+      data.email,                            // H: Email
       statut,                                // I: Statut RSVP
-      data.email,                            // J: Email
-      "Casher",                              // K: Restrictions
-      data.message,                          // L: Message
+      "",                                    // J: Total (formule)
+      data.restrictions || "",               // K: Restrictions
+      data.message || "",                    // L: Message
       new Date(),                            // M: Date de réponse
-      ""                                     // N: lang
+      data.lang || ""                        // N: lang
     ]);
   }
 
