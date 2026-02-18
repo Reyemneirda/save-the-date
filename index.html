@@ -22,14 +22,15 @@
     ║                                                                      ║
     ║  Ton Sheet1 a ces colonnes :                                        ║
     ║  A: First Name | B: Last Name | C: Guests | D: Phone Number        ║
-    ║  E: Telegram username | F: Comes ? | G: Parking lot | H: Total    ║
-    ║  I: Statut RSVP | J: Email | K: Restrictions alimentaires         ║
-    ║  L: Message | M: Date de réponse | N: lang                         ║
+    ║  E: Telegram username | F: Comes ? | G: Parking lot                ║
+    ║  H: Email | I: Statut RSVP | J: Total (formule)                   ║
+    ║  K: Restrictions alimentaires | L: Message                          ║
+    ║  M: Date de réponse | N: lang                                      ║
     ║                                                                      ║
     ║  Le script Apps Script ci-dessous cherche l'invité par              ║
     ║  Prénom + Nom dans Sheet1, puis remplit les colonnes :              ║
-    ║  C (Guests), F (Parking), H (Statut), I (Email),                   ║
-    ║  J ("Casher"), K (Message), L (Date de réponse)                    ║
+    ║  C (Guests), F (Comes), G (Parking), H (Email),                    ║
+    ║  I (Statut), K (Restrictions), L (Message), M (Date), N (lang)     ║
     ║                                                                      ║
     ║  ÉTAPE 1 — Dans ton Google Sheet :                                  ║
     ║    Extensions > Apps Script                                          ║
@@ -43,8 +44,8 @@
     ║  │                                                               │   ║
     ║  │    var data = JSON.parse(e.postData.contents);                │   ║
     ║  │    var rows = sheet.getDataRange().getValues();                │   ║
+    ║  │    var statut = data.comes ? "Confirmed" : "Declined";        │   ║
     ║  │                                                               │   ║
-    ║  │    // Cherche la ligne par Prénom (col A) + Nom (col B)       │   ║
     ║  │    var found = false;                                         │   ║
     ║  │    for (var i = 1; i < rows.length; i++) {                    │   ║
     ║  │      var firstName = String(rows[i][0]).trim().toLowerCase(); │   ║
@@ -55,25 +56,27 @@
     ║  │                        .toLowerCase();                        │   ║
     ║  │                                                               │   ║
     ║  │      if (firstName === dataFirst && lastName === dataLast) {  │   ║
-    ║  │        var row = i + 1; // +1 car index commence à 0         │   ║
-    ║  │        sheet.getRange(row, 3).setValue(data.guests);  // C    │   ║
-    ║  │        sheet.getRange(row, 6).setValue(data.parking);  // F   │   ║
-    ║  │        sheet.getRange(row, 8).setValue("Confirmed");   // H   │   ║
-    ║  │        sheet.getRange(row, 9).setValue(data.email);    // I   │   ║
-    ║  │        sheet.getRange(row, 10).setValue("Casher");     // J   │   ║
-    ║  │        sheet.getRange(row, 11).setValue(data.message); // K   │   ║
-    ║  │        sheet.getRange(row, 12).setValue(new Date());   // L   │   ║
+    ║  │        var row = i + 1;                                       │   ║
+    ║  │        sheet.getRange(row, 3).setValue(data.guests);    // C  │   ║
+    ║  │        sheet.getRange(row, 6).setValue(data.comes);     // F  │   ║
+    ║  │        sheet.getRange(row, 7).setValue(data.parking);   // G  │   ║
+    ║  │        sheet.getRange(row, 8).setValue(data.email);     // H  │   ║
+    ║  │        sheet.getRange(row, 9).setValue(statut);         // I  │   ║
+    ║  │        sheet.getRange(row,11).setValue(data.restrictions);//K │   ║
+    ║  │        sheet.getRange(row,12).setValue(data.message);   // L  │   ║
+    ║  │        sheet.getRange(row,13).setValue(new Date());     // M  │   ║
+    ║  │        sheet.getRange(row,14).setValue(data.lang);      // N  │   ║
     ║  │        found = true;                                          │   ║
     ║  │        break;                                                 │   ║
     ║  │      }                                                        │   ║
     ║  │    }                                                          │   ║
     ║  │                                                               │   ║
-    ║  │    // Si l'invité n'est pas dans la liste, ajoute une ligne   │   ║
     ║  │    if (!found) {                                              │   ║
     ║  │      sheet.appendRow([                                        │   ║
-    ║  │        data.firstName, data.lastName, data.guests, "",        │   ║
-    ║  │        "", data.parking, "", "Confirmed", data.email,         │   ║
-    ║  │        "Casher", data.message, new Date()                     │   ║
+    ║  │        data.firstName, data.lastName, data.guests,            │   ║
+    ║  │        "", "", data.comes, data.parking, data.email,          │   ║
+    ║  │        statut, "", data.restrictions, data.message,           │   ║
+    ║  │        new Date(), data.lang                                  │   ║
     ║  │      ]);                                                      │   ║
     ║  │    }                                                          │   ║
     ║  │                                                               │   ║
@@ -1105,6 +1108,16 @@
               data-i18n="label_parking"
             ></label>
           </div>
+
+          <!-- Restrictions alimentaires -->
+          <div class="form-group">
+            <label class="form-label" data-i18n="label_restrictions"></label>
+            <input
+              class="form-input"
+              type="text"
+              id="field-restrictions"
+            />
+          </div>
         </div>
 
         <!-- Message (toujours visible) -->
@@ -1194,6 +1207,7 @@
           label_email: "Email",
           label_guests: "Accompagnants",
           label_parking: "J'ai besoin d'une place de parking",
+          label_restrictions: "Restrictions alimentaires (optionnel)",
           label_message: "Un petit mot (optionnel)",
           label_comes: "Serez-vous présent(e) ?",
           comes_yes: "Oui, je serai là !",
@@ -1234,6 +1248,7 @@
           label_email: "Email",
           label_guests: "Additional guests",
           label_parking: "I need a parking spot",
+          label_restrictions: "Dietary restrictions (optional)",
           label_message: "Want to add a note? (optional)",
           label_comes: "Will you be attending?",
           comes_yes: "Yes, I'll be there!",
@@ -1270,6 +1285,7 @@
           label_email: "אימייל",
           label_guests: "מלווים נוספים",
           label_parking: "אני צריך/ה חנייה",
+          label_restrictions: "(הגבלות תזונתיות (לא חובה",
           label_message: "הערה (לא חובה)",
           label_comes: "?האם תגיעו",
           comes_yes: "!כן, אגיע",
@@ -1306,6 +1322,7 @@
           label_email: "Электронная почта",
           label_guests: "Дополнительные гости",
           label_parking: "Мне нужна парковка",
+          label_restrictions: "Диетические ограничения (необязательно)",
           label_message: "Хотите что-то добавить? (необязательно)",
           label_comes: "Вы придёте?",
           comes_yes: "Да, буду!",
@@ -1442,6 +1459,9 @@
           ? document.getElementById("field-parking").checked
           : false;
         const message = document.getElementById("field-message").value.trim();
+        const restrictions = comesValue
+          ? document.getElementById("field-restrictions").value.trim()
+          : "";
         const comes = comesValue;
 
         if (!firstName || !lastName) {
@@ -1458,10 +1478,11 @@
          * Payload envoyé au Apps Script.
          *
          * Colonnes du Sheet :
-         *   A: First Name | B: Last Name | C: Guests | D: Phone
+         *   A: First Name | B: Last Name | C: Guests | D: Phone Number
          *   E: Telegram username | F: Comes? | G: Parking lot
-         *   H: Total | I: Statut RSVP | J: Email
-         *   K: Restrictions | L: Message | M: Date de réponse | N: lang
+         *   H: Email | I: Statut RSVP | J: Total (formule)
+         *   K: Restrictions alimentaires | L: Message
+         *   M: Date de réponse | N: lang
          */
         const payload = {
           firstName,
@@ -1470,7 +1491,9 @@
           guests,
           parking,
           message,
+          restrictions,
           comes,
+          lang: currentLang,
         };
 
         try {
