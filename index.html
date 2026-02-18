@@ -35,59 +35,19 @@
     ║                                                                      ║
     ║  ÉTAPE 1 — Dans ton Google Sheet :                                  ║
     ║    Extensions > Apps Script                                          ║
-    ║    Supprime tout et colle le script suivant :                       ║
+    ║    Supprime tout et colle le contenu de apps-script.js               ║
     ║                                                                      ║
-    ║  ┌──────────────────────────────────────────────────────────────┐   ║
-    ║  │  function doPost(e) {                                        │   ║
-    ║  │    var sheet = SpreadsheetApp                                 │   ║
-    ║  │      .getActiveSpreadsheet()                                  │   ║
-    ║  │      .getSheetByName("Sheet1");                               │   ║
-    ║  │                                                               │   ║
-    ║  │    var data = JSON.parse(e.postData.contents);                │   ║
-    ║  │    var rows = sheet.getDataRange().getValues();                │   ║
-    ║  │    var statut = data.comes ? "Confirmed" : "Declined";        │   ║
-    ║  │                                                               │   ║
-    ║  │    var found = false;                                         │   ║
-    ║  │    for (var i = 1; i < rows.length; i++) {                    │   ║
-    ║  │      var firstName = String(rows[i][0]).trim().toLowerCase(); │   ║
-    ║  │      var lastName  = String(rows[i][1]).trim().toLowerCase(); │   ║
-    ║  │      var dataFirst = String(data.firstName).trim()            │   ║
-    ║  │                        .toLowerCase();                        │   ║
-    ║  │      var dataLast  = String(data.lastName).trim()             │   ║
-    ║  │                        .toLowerCase();                        │   ║
-    ║  │                                                               │   ║
-    ║  │      if (firstName === dataFirst && lastName === dataLast) {  │   ║
-    ║  │        var row = i + 1;                                       │   ║
-    ║  │        sheet.getRange(row, 3).setValue(data.guests);    // C  │   ║
-    ║  │        sheet.getRange(row, 6).setValue(data.comes);     // F  │   ║
-    ║  │        sheet.getRange(row, 7).setValue(data.parking);   // G  │   ║
-    ║  │        sheet.getRange(row, 8).setValue(data.email);     // H  │   ║
-    ║  │        sheet.getRange(row, 9).setValue(statut);         // I  │   ║
-    ║  │        sheet.getRange(row,11).setValue(data.restrictions);//K │   ║
-    ║  │        sheet.getRange(row,12).setValue(data.message);   // L  │   ║
-    ║  │        sheet.getRange(row,13).setValue(new Date());     // M  │   ║
-    ║  │        sheet.getRange(row,14).setValue(data.lang);      // N  │   ║
-    ║  │        found = true;                                          │   ║
-    ║  │        break;                                                 │   ║
-    ║  │      }                                                        │   ║
-    ║  │    }                                                          │   ║
-    ║  │                                                               │   ║
-    ║  │    if (!found) {                                              │   ║
-    ║  │      sheet.appendRow([                                        │   ║
-    ║  │        data.firstName, data.lastName, data.guests,            │   ║
-    ║  │        "", "", data.comes, data.parking, data.email,          │   ║
-    ║  │        statut, "", data.restrictions, data.message,           │   ║
-    ║  │        new Date(), data.lang                                  │   ║
-    ║  │      ]);                                                      │   ║
-    ║  │    }                                                          │   ║
-    ║  │                                                               │   ║
-    ║  │    return ContentService                                      │   ║
-    ║  │      .createTextOutput(JSON.stringify({                       │   ║
-    ║  │        result: "ok", found: found                             │   ║
-    ║  │      }))                                                      │   ║
-    ║  │      .setMimeType(ContentService.MimeType.JSON);              │   ║
-    ║  │  }                                                            │   ║
-    ║  └──────────────────────────────────────────────────────────────┘   ║
+    ║  Colonnes (getRange = 1-based) :                                     ║
+    ║    C(3):  Guests          — Number                                   ║
+    ║    F(6):  Comes?          — true/false (checkbox)                    ║
+    ║    G(7):  Parking         — true/false (checkbox)                    ║
+    ║    H(8):  Email           — String                                   ║
+    ║    I(9):  Statut RSVP     — "Confirmed" / "Declined"                ║
+    ║    J(10): Total           — FORMULE, NE PAS TOUCHER                 ║
+    ║    K(11): Restrictions    — String                                   ║
+    ║    L(12): Message         — String                                   ║
+    ║    M(13): Date de réponse — Date                                    ║
+    ║    N(14): lang            — String                                   ║
     ║                                                                      ║
     ║  ÉTAPE 2 — Déployer :                                               ║
     ║    Clic "Déployer" > "Nouveau déploiement"                          ║
