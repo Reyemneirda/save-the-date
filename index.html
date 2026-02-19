@@ -1633,10 +1633,9 @@
             lnField.value = data.lastName || "";
             emField.value = data.email || "";
 
-            fnField.readOnly = true;
-            lnField.readOnly = true;
-            fnField.style.opacity = "0.7";
-            lnField.style.opacity = "0.7";
+            // Champs pré-remplis mais restent éditables
+            fnField.style.opacity = "0.85";
+            lnField.style.opacity = "0.85";
           }
         } catch (err) {
           console.warn("Prefill échoué:", err);
