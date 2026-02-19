@@ -143,19 +143,60 @@
       /* ============================================= */
       /*         SÉLECTEUR DE LANGUE                    */
       /* ============================================= */
-      .lang-switcher {
+      .top-bar {
         position: fixed;
         top: 1.2rem;
         right: 1.5rem;
         z-index: 100;
         display: flex;
-        gap: 0.4rem;
+        align-items: center;
+        gap: 0.5rem;
         animation: fadeIn 1.5s ease-out 1.4s both;
       }
 
-      [dir="rtl"] .lang-switcher {
+      [dir="rtl"] .top-bar {
         right: auto;
         left: 1.5rem;
+      }
+
+      .lang-switcher {
+        display: flex;
+        gap: 0.4rem;
+      }
+
+      .music-btn {
+        background: var(--color-accent);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 2px solid var(--color-accent);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 50%;
+        color: var(--color-white);
+        font-size: 1rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+        animation: pulse-music 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse-music {
+        0%, 100% { transform: scale(1); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); }
+        50% { transform: scale(1.12); box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25); }
+      }
+
+      .music-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .music-btn.playing {
+        animation: none;
+        background: var(--color-accent);
+        border-color: var(--color-accent);
+        color: var(--color-white);
       }
 
       .lang-btn {
@@ -821,7 +862,7 @@
         .form-row {
           grid-template-columns: 1fr;
         }
-        .lang-switcher {
+        .top-bar {
           top: 0.8rem;
           right: 0.8rem;
         }
@@ -829,7 +870,12 @@
           font-size: 0.72rem;
           padding: 0.4rem 0.7rem;
         }
-        [dir="rtl"] .lang-switcher {
+        .music-btn {
+          width: 36px;
+          height: 36px;
+          font-size: 0.9rem;
+        }
+        [dir="rtl"] .top-bar {
           right: auto;
           left: 0.8rem;
         }
@@ -837,21 +883,27 @@
     </style>
   </head>
   <body>
-    <!-- Sélecteur de langue -->
-    <nav class="lang-switcher" aria-label="Language selector">
-      <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">
-        FR
+    <!-- Barre fixe : musique + langue -->
+    <div class="top-bar">
+      <button class="music-btn" id="music-btn" onclick="toggleMusic()" aria-label="Play/Pause music">
+        ▶
       </button>
-      <button class="lang-btn" data-lang="en" onclick="setLang('en')">
-        EN
-      </button>
-      <button class="lang-btn" data-lang="he" onclick="setLang('he')">
-        עב
-      </button>
-      <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">
-        РУ
-      </button>
-    </nav>
+      <nav class="lang-switcher" aria-label="Language selector">
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">
+          FR
+        </button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">
+          EN
+        </button>
+        <button class="lang-btn" data-lang="he" onclick="setLang('he')">
+          עב
+        </button>
+        <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">
+          РУ
+        </button>
+      </nav>
+    </div>
+    <audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
 
     <!-- ============================================= -->
     <!--          CARTE 1 — SAVE THE DATE               -->
@@ -1319,6 +1371,42 @@
           if (supported.includes(lang)) return lang;
         }
         return "fr";
+      }
+
+      /* ---------- Musique ---------- */
+      const bgMusic = document.getElementById("bg-music");
+      const musicBtn = document.getElementById("music-btn");
+
+      function startMusic() {
+        if (bgMusic.paused) {
+          bgMusic.play().then(() => {
+            musicBtn.textContent = "⏸";
+            musicBtn.classList.add("playing");
+          }).catch(() => {});
+        }
+      }
+
+      // Autoplay dès la première interaction utilisateur
+      function autoplayOnce() {
+        startMusic();
+        document.removeEventListener("click", autoplayOnce);
+        document.removeEventListener("touchstart", autoplayOnce);
+        document.removeEventListener("scroll", autoplayOnce);
+      }
+      document.addEventListener("click", autoplayOnce, { once: true });
+      document.addEventListener("touchstart", autoplayOnce, { once: true });
+      document.addEventListener("scroll", autoplayOnce, { once: true });
+
+      function toggleMusic() {
+        if (bgMusic.paused) {
+          bgMusic.play();
+          musicBtn.textContent = "⏸";
+          musicBtn.classList.add("playing");
+        } else {
+          bgMusic.pause();
+          musicBtn.textContent = "▶";
+          musicBtn.classList.remove("playing");
+        }
       }
 
       /* ---------- Appliquer une langue ---------- */
