@@ -656,11 +656,11 @@
 
       .comes-btn {
         flex: 1;
-        padding: 0.65rem 1rem;
+        padding: 0.85rem 1rem;
         font-family: var(--font-body);
-        font-size: 0.8rem;
-        font-weight: 300;
-        border: 1px solid var(--color-line);
+        font-size: 0.85rem;
+        font-weight: 400;
+        border: 2px solid var(--color-line);
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.5);
         color: var(--color-muted);
@@ -673,10 +673,37 @@
         color: var(--color-accent);
       }
 
-      .comes-btn.active {
-        border-color: var(--color-accent);
-        background: var(--color-accent);
+      .comes-btn--yes.active {
+        border-color: var(--color-success);
+        background: var(--color-success);
         color: var(--color-white);
+      }
+
+      .comes-btn--no.active {
+        border-color: var(--color-error);
+        background: var(--color-error);
+        color: var(--color-white);
+      }
+
+      .comes-hint {
+        font-family: var(--font-body);
+        font-size: 0.7rem;
+        font-weight: 300;
+        font-style: italic;
+        color: var(--color-muted);
+        margin-top: 0.5rem;
+        opacity: 0.85;
+      }
+
+      .form-hint {
+        display: block;
+        font-family: var(--font-body);
+        font-size: 0.65rem;
+        font-weight: 300;
+        font-style: italic;
+        color: var(--color-muted);
+        margin-top: 0.3rem;
+        opacity: 0.85;
       }
 
       #comes-details {
@@ -1075,7 +1102,7 @@
           <div class="comes-toggle" id="comes-toggle">
             <button
               type="button"
-              class="comes-btn comes-btn--yes active"
+              class="comes-btn comes-btn--yes"
               id="comes-yes"
               onclick="setComes(true)"
               data-i18n="comes_yes"
@@ -1088,10 +1115,11 @@
               data-i18n="comes_no"
             ></button>
           </div>
+          <p class="comes-hint" id="comes-hint" data-i18n="comes_hint"></p>
         </div>
 
         <!-- Champs affichés seulement si "Je viens" -->
-        <div id="comes-details">
+        <div id="comes-details" class="hidden">
           <!-- Email + Nombre d'invités -->
           <div class="form-row">
             <div class="form-group">
@@ -1109,6 +1137,7 @@
                 value="0"
                 style="max-width: 100%"
               />
+              <small class="form-hint" data-i18n="hint_guests"></small>
             </div>
           </div>
 
@@ -1214,13 +1243,15 @@
           label_firstName: "Prénom",
           label_lastName: "Nom de famille",
           label_email: "Email",
-          label_guests: "Accompagnants",
+          label_guests: "Nombre d'accompagnants",
+          hint_guests: "Personnes en plus de vous (0 si vous venez seul·e)",
           label_parking: "J'ai besoin d'une place de parking",
           label_restrictions: "Restrictions alimentaires (optionnel)",
           label_message: "Un petit mot (optionnel)",
           label_comes: "Serez-vous présent(e) ?",
-          comes_yes: "Oui, je serai là !",
-          comes_no: "Malheureusement non",
+          comes_yes: "✓ Oui, je serai là !",
+          comes_no: "✗ Non, je ne pourrai pas venir",
+          comes_hint: "Merci de choisir une option ci-dessus.",
           submit: "Envoyer",
           sending: "Envoi en cours…",
           success_title: "Merci !",
@@ -1231,6 +1262,7 @@
             "Nous sommes désolés que vous ne puissiez pas venir.\nVous nous manquerez !",
           error: "Une erreur est survenue. Veuillez réessayer.",
           error_name: "Merci d'indiquer votre prénom et nom.",
+          error_comes: "Merci d'indiquer si vous serez présent(e) ou non.",
 
           // -- Countdown --
           days: "Jours",
@@ -1255,13 +1287,15 @@
           label_firstName: "First name",
           label_lastName: "Last name",
           label_email: "Email",
-          label_guests: "Additional guests",
+          label_guests: "Number of additional guests",
+          hint_guests: "People besides yourself (0 if coming alone)",
           label_parking: "I need a parking spot",
           label_restrictions: "Dietary restrictions (optional)",
           label_message: "Want to add a note? (optional)",
           label_comes: "Will you be attending?",
-          comes_yes: "Yes, I'll be there!",
-          comes_no: "Unfortunately not",
+          comes_yes: "✓ Yes, I'll be there!",
+          comes_no: "✗ No, I can't make it",
+          comes_hint: "Please choose an option above.",
           submit: "Submit",
           sending: "Sending…",
           success_title: "Thank you!",
@@ -1271,6 +1305,7 @@
           success_sub_no: "We're sorry you can't make it.\nYou'll be missed!",
           error: "Something went wrong. Please try again.",
           error_name: "Please enter your first and last name.",
+          error_comes: "Please indicate whether you will be attending.",
 
           days: "Days",
           hours: "Hours",
@@ -1292,13 +1327,15 @@
           label_firstName: "שם פרטי",
           label_lastName: "שם משפחה",
           label_email: "אימייל",
-          label_guests: "מלווים נוספים",
+          label_guests: "מספר מלווים נוספים",
+          hint_guests: "אנשים נוספים מלבדכם (0 אם תגיעו לבד)",
           label_parking: "אני צריך/ה חנייה",
           label_restrictions: "(הגבלות תזונתיות (לא חובה",
           label_message: "הערה (לא חובה)",
           label_comes: "?האם תגיעו",
-          comes_yes: "!כן, אגיע",
-          comes_no: "לצערי לא",
+          comes_yes: "✓ כן, אגיע!",
+          comes_no: "✗ לא, לא אוכל להגיע",
+          comes_hint: "אנא בחרו אפשרות למעלה.",
           submit: "שליחה",
           sending: "שולח…",
           success_title: "!תודה",
@@ -1307,6 +1344,7 @@
           success_sub_no: "!חבל שלא תוכלו להגיע.\nנתגעגע אליכם",
           error: "אירעה שגיאה. אנא נסו שוב.",
           error_name: "אנא הזינו שם פרטי ושם משפחה.",
+          error_comes: "אנא ציינו אם תגיעו או לא.",
 
           days: "ימים",
           hours: "שעות",
@@ -1330,13 +1368,15 @@
           label_firstName: "Имя",
           label_lastName: "Фамилия",
           label_email: "Электронная почта",
-          label_guests: "Дополнительные гости",
+          label_guests: "Количество дополнительных гостей",
+          hint_guests: "Кроме вас (0, если придёте один/одна)",
           label_parking: "Мне нужна парковка",
           label_restrictions: "Диетические ограничения (необязательно)",
           label_message: "Хотите что-то добавить? (необязательно)",
           label_comes: "Вы придёте?",
-          comes_yes: "Да, буду!",
-          comes_no: "К сожалению, нет",
+          comes_yes: "✓ Да, буду!",
+          comes_no: "✗ Нет, не смогу прийти",
+          comes_hint: "Пожалуйста, выберите вариант выше.",
           submit: "Отправить",
           sending: "Отправка…",
           success_title: "Спасибо!",
@@ -1346,6 +1386,7 @@
           success_sub_no: "Жаль, что вы не сможете прийти.\nБудем скучать!",
           error: "Произошла ошибка. Попробуйте ещё раз.",
           error_name: "Пожалуйста, укажите имя и фамилию.",
+          error_comes: "Пожалуйста, укажите, придёте ли вы.",
 
           days: "Дней",
           hours: "Часов",
@@ -1476,16 +1517,23 @@
       }
 
       /* ---------- Toggle "Je viens / Je ne viens pas" ---------- */
-      let comesValue = true;
+      let comesValue = null; // null = pas encore choisi
 
       function setComes(val) {
         comesValue = val;
-        document.getElementById("comes-yes").classList.toggle("active", val);
-        document.getElementById("comes-no").classList.toggle("active", !val);
+        document.getElementById("comes-yes").classList.toggle("active", val === true);
+        document.getElementById("comes-no").classList.toggle("active", val === false);
         document
           .getElementById("comes-details")
-          .classList.toggle("hidden", !val);
+          .classList.toggle("hidden", val !== true);
+        // Cache le hint une fois le choix fait
+        const hint = document.getElementById("comes-hint");
+        if (hint) hint.style.display = val === null ? "" : "none";
       }
+
+      /* ---------- Identifiant de pré-remplissage (phone/tg) ---------- */
+      let prefillPhone = "";
+      let prefillTg = "";
 
       /* ---------- Envoi du formulaire RSVP ---------- */
       async function submitRSVP() {
@@ -1516,6 +1564,12 @@
           return;
         }
 
+        if (comesValue === null) {
+          status.textContent = t.error_comes;
+          status.className = "form-status error";
+          return;
+        }
+
         btn.disabled = true;
         status.textContent = t.sending;
         status.className = "form-status sending";
@@ -1540,6 +1594,11 @@
           restrictions,
           comes,
           lang: currentLang,
+          // Identifiant si l'invité provient d'un lien pré-rempli :
+          // permet à doPost de retrouver la bonne ligne même si le
+          // nom/prénom a été légèrement modifié.
+          phone: prefillPhone,
+          tg: prefillTg,
         };
 
         try {
@@ -1611,6 +1670,11 @@
         const phone = params.get("p");
         const tgUser = params.get("t");
 
+        // Mémorise l'identifiant pour le renvoyer lors du submit
+        // (permet à doPost de retrouver la bonne ligne du sheet)
+        prefillPhone = phone || "";
+        prefillTg = tgUser || "";
+
         if ((!phone && !tgUser) || !APPS_SCRIPT_URL) return;
 
         try {
@@ -1632,10 +1696,6 @@
             fnField.value = data.firstName || "";
             lnField.value = data.lastName || "";
             emField.value = data.email || "";
-
-            // Champs pré-remplis mais restent éditables
-            fnField.style.opacity = "0.85";
-            lnField.style.opacity = "0.85";
           }
         } catch (err) {
           console.warn("Prefill échoué:", err);
