@@ -101,12 +101,18 @@ function doGet(e) {
 /**
  * doPost — Enregistre une réponse RSVP.
  *
- * Cherche par Prénom + Nom (normalisé).
- * Trouvé → met à jour. Pas trouvé → nouvelle ligne.
+ * Stratégie de recherche (dans l'ordre) :
+ *   1. Téléphone (data.phone, col D) — le plus fiable
+ *   2. Telegram username (data.tg, col E)
+ *   3. Prénom + Nom normalisés (col A + B)
+ *
+ * → Si trouvé : met à jour la ligne existante.
+ * → Sinon    : ajoute une nouvelle ligne en bas.
  *
  * Le champ "comes" détermine :
  *   - F: true ou false (checkbox)
- *   - I: "Confirmed" ou "Declined"
+ *   - I: "Confirmed" ou "Declined" (jamais vide → on distingue
+ *        clairement "n'a pas répondu" vs "a refusé" dans le sheet)
  *   - Si false : guests = 0, parking = false
  */
 function doPost(e) {
@@ -117,44 +123,75 @@ function doPost(e) {
   var data = JSON.parse(e.postData.contents);
   var rows = sheet.getDataRange().getValues();
   var found = false;
+  var matchedRow = -1;
 
   var dataFirst = normalizeName(data.firstName);
   var dataLast  = normalizeName(data.lastName);
+  var dataPhone = normalizePhone(data.phone || "");
+  var dataTg    = String(data.tg || "").trim().toLowerCase().replace(/^@/, "");
 
   var comes  = data.comes === true || data.comes === "true";
   var statut = comes ? "Confirmed" : "Declined";
 
-  for (var i = 1; i < rows.length; i++) {
-    var firstName = normalizeName(rows[i][0]);
-    var lastName  = normalizeName(rows[i][1]);
-
-    if (firstName === dataFirst && lastName === dataLast) {
-      var row = i + 1;
-
-      sheet.getRange(row, 3).setValue(comes ? Number(data.guests) : 0);   // C: Guests
-      // D (Phone) et E (Telegram) ne sont pas modifiés
-      sheet.getRange(row, 6).setValue(comes);                              // F: Comes? (checkbox)
-      sheet.getRange(row, 7).setValue(comes ? !!data.parking : false);     // G: Parking (checkbox)
-      sheet.getRange(row, 8).setValue(data.email);                         // H: Email
-      sheet.getRange(row, 9).setValue(statut);                             // I: Statut RSVP
-      // J(10) = Total → formule, on ne touche pas
-      sheet.getRange(row, 11).setValue(data.restrictions || "");           // K: Restrictions
-      sheet.getRange(row, 12).setValue(data.message || "");               // L: Message
-      sheet.getRange(row, 13).setValue(new Date());                       // M: Date de réponse
-      sheet.getRange(row, 14).setValue(data.lang || "");                  // N: lang
-
-      found = true;
-      break;
+  // 1) Recherche prioritaire par téléphone ou Telegram (identifiant fort)
+  if (dataPhone || dataTg) {
+    for (var i = 1; i < rows.length; i++) {
+      if (dataPhone) {
+        var cellPhone = normalizePhone(rows[i][3]); // D
+        if (cellPhone && cellPhone === dataPhone) {
+          matchedRow = i;
+          break;
+        }
+      }
+      if (dataTg) {
+        var cellTg = String(rows[i][4] || "").trim().toLowerCase().replace(/^@/, ""); // E
+        if (cellTg && cellTg === dataTg) {
+          matchedRow = i;
+          break;
+        }
+      }
     }
   }
 
-  if (!found) {
+  // 2) Repli : recherche par Prénom + Nom (normalisés)
+  if (matchedRow === -1) {
+    for (var j = 1; j < rows.length; j++) {
+      var firstName = normalizeName(rows[j][0]);
+      var lastName  = normalizeName(rows[j][1]);
+
+      if (firstName === dataFirst && lastName === dataLast) {
+        matchedRow = j;
+        break;
+      }
+    }
+  }
+
+  if (matchedRow !== -1) {
+    var row = matchedRow + 1;
+
+    // Met à jour aussi A/B au cas où l'invité corrige son nom
+    sheet.getRange(row, 1).setValue(data.firstName);                     // A: First Name
+    sheet.getRange(row, 2).setValue(data.lastName);                      // B: Last Name
+    sheet.getRange(row, 3).setValue(comes ? Number(data.guests) : 0);    // C: Guests
+    // D (Phone) et E (Telegram) ne sont pas modifiés
+    sheet.getRange(row, 6).setValue(comes);                              // F: Comes? (checkbox)
+    sheet.getRange(row, 7).setValue(comes ? !!data.parking : false);     // G: Parking (checkbox)
+    sheet.getRange(row, 8).setValue(data.email);                         // H: Email
+    sheet.getRange(row, 9).setValue(statut);                             // I: Statut RSVP
+    // J(10) = Total → formule, on ne touche pas
+    sheet.getRange(row, 11).setValue(data.restrictions || "");           // K: Restrictions
+    sheet.getRange(row, 12).setValue(data.message || "");                // L: Message
+    sheet.getRange(row, 13).setValue(new Date());                        // M: Date de réponse
+    sheet.getRange(row, 14).setValue(data.lang || "");                   // N: lang
+
+    found = true;
+  } else {
     sheet.appendRow([
       data.firstName,                        // A
       data.lastName,                         // B
       comes ? Number(data.guests) : 0,       // C
-      "",                                    // D: Phone
-      "",                                    // E: Telegram
+      data.phone || "",                      // D: Phone (utile si nouvelle ligne)
+      data.tg || "",                         // E: Telegram
       comes,                                 // F: Comes? (checkbox)
       comes ? !!data.parking : false,        // G: Parking (checkbox)
       data.email,                            // H: Email
